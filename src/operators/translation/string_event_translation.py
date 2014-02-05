@@ -1,3 +1,4 @@
+from src.collection_manipulation.dictionary_utils import invert_dictionary
 from src.operators import events
 
 _map_string_to_event = {
@@ -45,3 +46,18 @@ class StringToEventsTranslator(object):
             event = _map_string_to_event[char]
             events_from_string.append(event)
         return events_from_string
+
+
+_map_event_to_string = invert_dictionary(_map_string_to_event)
+
+
+class EventsToStringTranslator(object):
+
+    def translate_event(self, event):
+        return _map_event_to_string[event]
+
+    def translate_iterable(self, events_iterable):
+        translation = ""
+        for event in events_iterable:
+            translation += self.translate_event(event)
+        return translation

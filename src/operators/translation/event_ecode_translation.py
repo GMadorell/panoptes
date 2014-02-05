@@ -1,4 +1,5 @@
 from evdev import ecodes
+from src.collection_manipulation.dictionary_utils import invert_dictionary
 from src.operators import events
 
 _event_to_ecode_map = {
@@ -35,8 +36,16 @@ _event_to_ecode_map = {
 
 
 class EventToEcodeTranslator(object):
-
     def translate(self, event):
         global _event_to_ecode_map
         return _event_to_ecode_map[event]
+
+
+_ecode_to_event_map = invert_dictionary(_event_to_ecode_map)
+
+
+class EcodeToEventTranslator(object):
+    def translate(self, ecode):
+        return _ecode_to_event_map[ecode]
+
 

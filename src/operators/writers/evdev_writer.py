@@ -5,7 +5,7 @@ Linux writer.
 Read readme_installation in order to make it work.
 """
 from evdev import UInput, ecodes
-from src.operators.writers.event_to_ecode_translator import EventToEcodeTranslator
+from src.operators.translation.event_ecode_translation import EventToEcodeTranslator
 from src.operators.writers.writer import Writer
 
 

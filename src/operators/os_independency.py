@@ -13,7 +13,8 @@ def get_writer_according_to_os():
 
 def get_reader_according_to_os():
     if is_linux():
-        return None
+        from src.operators.readers.evdev_reader import EvdevReader
+        return EvdevReader()
     elif is_windows():
         raise NotImplementedError("Windows is not currently implemented.")
     else:
