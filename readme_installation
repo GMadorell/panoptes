@@ -1,0 +1,21 @@
+
+
+Needed apart from dependencies:
+    - Be sure to have Python and Linux kernel files: http://packages.python.org/evdev/install.html
+
+    - Create special permissions for udev (for being able to write and read from keyboard):
+        (why? https://answers.launchpad.net/python-uinput/+question/205516
+              http://stackoverflow.com/questions/11939255/writing-to-dev-uinput-on-ubuntu-12-04,
+              http://sourceforge.net/apps/mediawiki/gizmod/index.php?title=HOWTO_-_Setting_Input_Device_Permissions_-_Creating_a_udev_Rule)
+
+        - we need a rules file:
+            - add it to /etc/udev/rules.d/
+            - name it 99-udev.rules
+            - contents:
+                KERNEL=="event*", MODE="660", GROUP="udev_group"
+                KERNEL=="uinput", MODE="660", GROUP="udev_group"
+
+        - then we need to add ourselves to the privileged group
+            - sudo addgroup udev_group
+            - sudo adduser $USER udev_group
+
