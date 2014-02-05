@@ -3,7 +3,8 @@ import platform
 
 def get_writer_according_to_os():
     if is_linux():
-        return None
+        from src.operators.writers.evdev_writer import EvdevWriter
+        return EvdevWriter()
     elif is_windows():
         raise NotImplementedError("Windows is not currently implemented.")
     else:

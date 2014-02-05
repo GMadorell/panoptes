@@ -1,6 +1,6 @@
 
 
-Needed apart from dependencies:
+Needed apart from dependencies (Linux-Ubuntu):
     - Be sure to have Python and Linux kernel files: http://packages.python.org/evdev/install.html
 
     - Create special permissions for udev (for being able to write and read from keyboard):
