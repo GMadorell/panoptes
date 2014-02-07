@@ -1,4 +1,4 @@
-from src.collection_manipulation.dictionary_utils import invert_dictionary
+from src.collection_utilities.dictionary_utils import invert_dictionary
 from src.operators import events
 
 _map_string_to_event = {

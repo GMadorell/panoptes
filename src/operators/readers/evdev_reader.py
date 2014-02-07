@@ -20,9 +20,10 @@ class EvdevReader(Reader):
         for evdev_event in self.__device.read_loop():
             if evdev_event.type == ecodes.EV_KEY:
                 key_event = categorize(evdev_event)
-                ecode = key_event.scancode
-                event = self._ecode_to_event_trans.translate(ecode)
-                yield event
+                if key_event.keystate == 0:
+                    ecode = key_event.scancode
+                    event = self._ecode_to_event_trans.translate(ecode)
+                    yield event
 
     def close(self):
         self.__device.close()

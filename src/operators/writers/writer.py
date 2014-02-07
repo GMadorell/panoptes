@@ -8,12 +8,12 @@ class Writer(object):
 
     __metaclass__ = abc.ABCMeta
 
+    @abc.abstractmethod
     def write_iterable(self, events_iterable):
         """
         Consumes the members of the iterable, writing them one by one.
         """
-        for event in events_iterable:
-            self.write_event(event)
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def write_event(self, event):

@@ -15,11 +15,19 @@ class EvdevWriter(Writer):
         self.event_to_ecode_translator = EventToEcodeTranslator()
         self.ui = UInput()
 
+    def write_iterable(self, events_iterable):
+        for event in events_iterable:
+            self.__buffer_event(event)
+        self.ui.syn()
+
     def write_event(self, event):
+        self.__buffer_event(event)
+        self.ui.syn()
+
+    def __buffer_event(self, event):
         ecode = self.event_to_ecode_translator.translate(event)
         self.ui.write(ecodes.EV_KEY, ecode, 1)
         self.ui.write(ecodes.EV_KEY, ecode, 0)
-        self.ui.syn()
 
     def write_combo(self, *events):
         raise NotImplementedError()

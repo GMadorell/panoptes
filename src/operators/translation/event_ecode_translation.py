@@ -1,5 +1,5 @@
 from evdev import ecodes
-from src.collection_manipulation.dictionary_utils import invert_dictionary
+from src.collection_utilities.dictionary_utils import invert_dictionary
 from src.operators import events
 
 _event_to_ecode_map = {
@@ -29,6 +29,17 @@ _event_to_ecode_map = {
     events.KEY_X: ecodes.KEY_X,
     events.KEY_Y: ecodes.KEY_Y,
     events.KEY_Z: ecodes.KEY_Z,
+
+    events.KEY_0: ecodes.KEY_0,
+    events.KEY_1: ecodes.KEY_1,
+    events.KEY_2: ecodes.KEY_2,
+    events.KEY_3: ecodes.KEY_3,
+    events.KEY_4: ecodes.KEY_4,
+    events.KEY_5: ecodes.KEY_5,
+    events.KEY_6: ecodes.KEY_6,
+    events.KEY_7: ecodes.KEY_7,
+    events.KEY_8: ecodes.KEY_8,
+    events.KEY_9: ecodes.KEY_9,
 
     events.KEY_SPACE: ecodes.KEY_SPACE,
     events.KEY_BACKSPACE: ecodes.KEY_BACKSPACE
