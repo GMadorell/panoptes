@@ -1,15 +1,11 @@
 import unittest
 import re
 from src.collection_utilities.boolean_tests import is_there_any_duplicate
+from src.regex.built_regexes import match_number_in_brackets, match_any_text, match_word_in_brackets, \
+    match_alphanumerical_in_brackets
 
 
 class RegexDeclarationBuilder(object):
-    def __init__(self):
-        self.__match_number_in_brackets_regex = \
-            re.compile(r"\{\d+\}")
-
-        self.__match_any_text = \
-            re.compile(r"[a-zA-Z, ]+")
 
     def build(self, declaration):
         """
@@ -17,17 +13,21 @@ class RegexDeclarationBuilder(object):
             f{0}{1}..{n}
         Returning a compiled regex that matches it.
         """
-        "^[f]{1}\d{1,1000}"
-        numeric_bracket_parts = self.get_numeric_parts(declaration)
+        numeric_bracket_parts = self.get_numeric_bracket_parts(declaration)
+        text_bracket_parts = self.get_text_bracket_parts(declaration)
         text_parts = self.get_text_parts(declaration)
 
         self.__validate_numeric_bracket_parts(declaration, numeric_bracket_parts)
+        self.__validate_text_bracket_parts(declaration, text_bracket_parts)
         self.__validate_declaration(declaration)
 
         declaration_regex = declaration
 
-        for result in text_parts:
-            declaration_regex = declaration_regex.replace(result, r"%s" % re.escape(result))
+        for result in set(text_parts):
+            declaration_regex = declaration_regex.replace(result, r"%s" % result)
+
+        for result in text_bracket_parts:
+            declaration_regex = declaration_regex.replace(result, r"\{\w+\}")
 
         for result in numeric_bracket_parts:
             declaration_regex = declaration_regex.replace(result, r"\d+")
@@ -35,11 +35,17 @@ class RegexDeclarationBuilder(object):
         declaration_regex = r"^" + declaration_regex + r"$"
         return re.compile(declaration_regex)
 
-    def get_numeric_parts(self, declaration):
-        return self.__match_number_in_brackets_regex.findall(declaration)
+    def get_bracket_parts(self, declaration):
+        return match_alphanumerical_in_brackets.findall(declaration)
+
+    def get_numeric_bracket_parts(self, declaration):
+        return match_number_in_brackets.findall(declaration)
 
     def get_text_parts(self, declaration):
-        return self.__match_any_text.findall(declaration)
+        return match_any_text.findall(declaration)
+
+    def get_text_bracket_parts(self, declaration):
+        return match_word_in_brackets.findall(declaration)
 
     def __validate_numeric_bracket_parts(self, declaration, all_results):
         if is_there_any_duplicate(all_results):
@@ -67,17 +73,52 @@ class RegexDeclarationBuilder(object):
 
         return index_second - index_first > len(first_element)
 
+    def __validate_text_bracket_parts(self, declaration, text_bracket_parts):
+        if is_there_any_duplicate(text_bracket_parts):
+            raise AssertionError("No repetitions in text bracket parts allowed.")
+
     def __validate_declaration(self, declaration):
         if self.__is_there_any_space(declaration):
             raise AssertionError("Macro declaration cannot have any space.")
+        if self.__is_there_any_alphanumerical_bracket_part(declaration):
+            raise AssertionError("Macro declaration can't have alphanumerical argument.")
 
     def __is_there_any_space(self, declaration):
         return " " in declaration
+
+    def __is_there_any_alphanumerical_bracket_part(self, declaration):
+        numeric_parts = self.get_numeric_bracket_parts(declaration)
+        text_bracket_parts = self.get_text_bracket_parts(declaration)
+
+        for part in self.get_bracket_parts(declaration):
+            if part not in numeric_parts and part not in text_bracket_parts:
+                return True
+        return False
 
 
 class RegexDeclarationBuilderTest(unittest.TestCase):
     def setUp(self):
         self.__builder = RegexDeclarationBuilder()
+
+    def test_repeated_parameters_not_allowed(self):
+        declaration = "f{0},{0}"
+        with self.assertRaises(AssertionError):
+            self.__builder.build(declaration)
+
+    def test_separation_needed_between_parameters(self):
+        declaration = "{0}{1}"
+        with self.assertRaises(AssertionError):
+            self.__builder.build(declaration)
+
+    def test_no_alphanumerical_arguments_allowed(self):
+        declaration = "{alphanumerical1}"
+        with self.assertRaises(AssertionError):
+            self.__builder.build(declaration)
+
+    def test_no_spaces_allowed_here(self):
+        declaration = "{0} {1}"
+        with self.assertRaises(AssertionError):
+            self.__builder.build(declaration)
 
     def test_no_parameters_single_letter(self):
         declaration = "f"
@@ -94,27 +135,28 @@ class RegexDeclarationBuilderTest(unittest.TestCase):
 
         self.__assert_declaration_correctness(declaration, should_match, shouldnt_match)
 
-    def test_repeated_parameters_not_allowed(self):
-        declaration = "f{0},{0}"
-        with self.assertRaises(AssertionError):
-            self.__builder.build(declaration)
-
-    def test_separation_needed_between_parameters(self):
-        declaration = "{0}{1}"
-        with self.assertRaises(AssertionError):
-            self.__builder.build(declaration)
-
-    def test_no_spaces_allowed_here(self):
-        declaration = "{0} {1}"
-        with self.assertRaises(AssertionError):
-            self.__builder.build(declaration)
-
-    def test_two_parameters_single_letter(self):
+    def test_two_numerical_parameters_single_letter(self):
         declaration = "f{0},{1}"
         should_match = ["f1,2", "f10000,200000", "f0,0"]
         shouldnt_match = ["", " ", "fa", "f ", " f", "fz,0", "f0,aa0"]
 
         self.__assert_declaration_correctness(declaration, should_match, shouldnt_match)
+
+    def test_two_text_parameter(self):
+        declaration = "f{word},{haha}"
+        should_match = ["f{something},{testing}", "f{a},{b}", "f{asdasdad},{asdasdasdadd}"]
+        shouldnt_match = ["", " ", "fa,a", "f ", " f", "f{},{a}", "f{},{}", "f{a},{}"]
+
+        self.__assert_declaration_correctness(declaration, should_match, shouldnt_match)
+
+    def test_all_types_together(self):
+        declaration = "f{word},test,{0},{1},{test}"
+        should_match = ["f{hi},test,2,3,{hi}", "f{test},test,2222,3333,{very_long_word}"]
+        shouldnt_match = [" f{hi},test,2,3,{hi}", "f{hi},test,2,3,{hi} ", "f{hi}, test,2,3,{hi}",
+                          "f{hi},test,2,3,{h i}", "f{test},,test,2222,3333,{very_long_word}"]
+
+        self.__assert_declaration_correctness(declaration, should_match, shouldnt_match)
+
 
     def __assert_declaration_correctness(self, declaration, should_match, shouldnt_match):
         compiled_regex = self.__builder.build(declaration)
