@@ -3,7 +3,6 @@ import unittest
 import StringIO
 from src.macros.macro_collection import MacroCollection
 from src.macros.macro_parser import MacroParser
-from src.regex.built_regexes import match_macro_definitions
 
 
 class MacroFileParser(object):

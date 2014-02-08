@@ -13,15 +13,42 @@ class Macro(object):
 
         self.__declaration = declaration
         self.__declaration_regex = regex_declaration_builder.build(declaration)
+        self.__arg_count = len(match_alphanumerical_in_brackets.findall(declaration))
+        self.__arguments = match_alphanumerical_in_brackets.findall(declaration)
 
         macro_text = self.__preprocess_macro_text(macro_text)
 
         self.__macro_text = macro_text
         self.__macro_function = macro_function_builder.build(macro_text)
-        self.__arg_count = len(match_alphanumerical_in_brackets.findall(declaration))
 
     def matches_declaration(self, declaration):
         return self.__declaration_regex.search(declaration) is not None
+
+    def apply_declaration(self, declaration):
+        assert self.matches_declaration(declaration), \
+            "The given declaration(%s) doesn't match the macros declaration (%s)." % (declaration, self.__declaration)
+
+        arguments_map = {}
+        overload = 0
+        for argument in self.__arguments:
+            index = self.__declaration.index(argument)
+            starting_value_index = index + overload
+            arg_value = ""
+            if index + len(argument) < len(self.__declaration):  # If the argument has a character following it.
+                next_symbol = self.__declaration[index + len(argument)]
+                iterating_value_index = starting_value_index
+                while declaration[iterating_value_index] != next_symbol:
+                    arg_value += declaration[iterating_value_index]
+                    iterating_value_index += 1
+                overload += (iterating_value_index - starting_value_index) - (len(argument))
+            else:
+                arg_value = declaration[starting_value_index:]
+            arguments_map[argument] = arg_value
+
+        #Remove brackets from the named parameters.
+        for key in arguments_map.keys():
+            arguments_map[key] = arguments_map[key].strip("{").strip("}")
+        return self.apply_arguments(arguments_map)
 
     def apply_arguments(self, arguments):
         """
@@ -80,6 +107,80 @@ class MacroTests(unittest.TestCase):
         built_text = macro.apply_arguments(arguments)
 
         self.assertEqual(built_text, expected_macro_text)
+
+    def test_apply_declaration_no_parameters(self):
+        declaration = "hello_world"
+        macro_text = \
+            "print('Hello World!')"
+
+        expected_macro_text = macro_text
+
+        macro = Macro(declaration, macro_text)
+
+        built_text = macro.apply_declaration("hello_world")
+
+        self.assertEqual(built_text, expected_macro_text)
+
+    def test_apply_declaration_one_numeric_parameter(self):
+        template_declaration = "p{1}"
+        template_macro_text = \
+            "print(str({1}))"
+
+        actual_declaration = "p50"
+        expected_macro_text = \
+            "print(str(50))"
+
+        macro = Macro(template_declaration, template_macro_text)
+
+        built_text = macro.apply_declaration(actual_declaration)
+
+        self.assertEqual(built_text, expected_macro_text)
+
+    def test_apply_declaration_two_numeric_parameters_multiple_length(self):
+        template_declaration = "p{10},{200}"
+        template_macro_text = \
+            "print(str({10} + {200}))"
+
+        actual_declaration = "p500,1000"
+        expected_macro_text = \
+            "print(str(500 + 1000))"
+
+        macro = Macro(template_declaration, template_macro_text)
+
+        built_text = macro.apply_declaration(actual_declaration)
+
+        self.assertEqual(built_text, expected_macro_text)
+
+    def test_apply_declaration_two_named_parameters(self):
+        template_declaration = "p{name},{potato}"
+        template_macro_text = \
+            "print(str({name} + {potato}))"
+
+        actual_declaration = "p{hi},{hello}"
+        expected_macro_text = \
+            "print(str(hi + hello))"
+
+        macro = Macro(template_declaration, template_macro_text)
+
+        built_text = macro.apply_declaration(actual_declaration)
+
+        self.assertEqual(built_text, expected_macro_text)
+
+    def test_apply_named_and_numeric_parameters(self):
+        template_declaration = "p{name},{potato},{0},{1}"
+        template_macro_text = \
+            "print(str({name} + {potato} + {0} + {1}))"
+
+        actual_declaration = "p{hi},{hello},5000000,100000"
+        expected_macro_text = \
+            "print(str(hi + hello + 5000000 + 100000))"
+
+        macro = Macro(template_declaration, template_macro_text)
+
+        built_text = macro.apply_declaration(actual_declaration)
+
+        self.assertEqual(built_text, expected_macro_text)
+
 
 
 
