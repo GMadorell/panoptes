@@ -25,6 +25,9 @@ class Macro(object):
         return self.__declaration_regex.search(declaration) is not None
 
     def apply_declaration(self, declaration):
+        """
+        Returns the formatted macro template (as a string) after applying the given declaration into it.
+        """
         assert self.matches_declaration(declaration), \
             "The given declaration(%s) doesn't match the macros declaration (%s)." % (declaration, self.__declaration)
 

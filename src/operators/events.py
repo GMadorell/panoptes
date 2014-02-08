@@ -45,5 +45,12 @@ KEY_7 = next_id()
 KEY_8 = next_id()
 KEY_9 = next_id()
 
+KEY_LEFTBRACE = next_id()
+KEY_RIGHTBRACE = next_id()
+KEY_DOT = next_id()
+
+KEY_ENTER = next_id()
+KEY_LEFT_SHIFT = next_id()
 KEY_SPACE = next_id()
 KEY_BACKSPACE = next_id()
+KEY_CAPS_LOCK = next_id()

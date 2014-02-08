@@ -1,8 +1,7 @@
 
 <start>
 f{0}
-for i in xrange({0}):
-    pass
+for i in xrange({0})
 <end>
 
 

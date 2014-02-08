@@ -29,6 +29,22 @@ _map_string_to_event = {
     "y": events.KEY_Y,
     "z": events.KEY_Z,
 
+    "0": events.KEY_0,
+    "1": events.KEY_1,
+    "2": events.KEY_2,
+    "3": events.KEY_3,
+    "4": events.KEY_4,
+    "5": events.KEY_5,
+    "6": events.KEY_6,
+    "7": events.KEY_7,
+    "8": events.KEY_8,
+    "9": events.KEY_9,
+
+    ")": events.KEY_RIGHTBRACE,
+    "(": events.KEY_LEFTBRACE,
+    ":": [events.KEY_LEFT_SHIFT, events.KEY_DOT],
+
+    "\n": events.KEY_ENTER,
     " ": events.KEY_SPACE
 }
 
@@ -54,6 +70,8 @@ _map_event_to_string = invert_dictionary(_map_string_to_event)
 class EventsToStringTranslator(object):
 
     def translate_event(self, event):
+        if isinstance(event, list):
+            event = str(event)
         return _map_event_to_string[event]
 
     def translate_iterable(self, events_iterable):

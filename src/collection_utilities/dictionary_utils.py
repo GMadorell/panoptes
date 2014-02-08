@@ -7,5 +7,8 @@ def invert_dictionary(dictionary):
     """
     inverted_dic = {}
     for key, value in dictionary.items():
-        inverted_dic[value] = key
+        try:
+            inverted_dic[value] = key
+        except TypeError, e:
+            inverted_dic[str(value)] = key
     return inverted_dic

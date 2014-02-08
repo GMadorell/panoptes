@@ -22,7 +22,11 @@ class EvdevReader(Reader):
                 key_event = categorize(evdev_event)
                 if key_event.keystate == 0:
                     ecode = key_event.scancode
-                    event = self._ecode_to_event_trans.translate(ecode)
+                    event = None
+                    try:
+                        event = self._ecode_to_event_trans.translate(ecode)
+                    except KeyError, key_error:
+                        print "Got a key error when translating at EvdevReader: %s. The key is: %s" % (str(key_error), str(key_event))
                     yield event
 
     def close(self):

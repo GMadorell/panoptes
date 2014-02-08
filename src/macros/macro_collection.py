@@ -18,3 +18,6 @@ class MacroCollection(object):
             if macro.matches_declaration(declaration):
                 return macro
         return None
+
+    def get_macros(self):
+        return self.__macros

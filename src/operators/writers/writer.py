@@ -20,7 +20,7 @@ class Writer(object):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def write_combo(self, *events):
+    def write_combo(self, events):
         """
         Writes all the events simultaniously. Useful for example for ctrl+something
         combinations.

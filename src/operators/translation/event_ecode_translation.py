@@ -41,8 +41,15 @@ _event_to_ecode_map = {
     events.KEY_8: ecodes.KEY_8,
     events.KEY_9: ecodes.KEY_9,
 
+    events.KEY_LEFTBRACE: ecodes.KEY_LEFTBRACE,
+    events.KEY_RIGHTBRACE: ecodes.KEY_RIGHTBRACE,
+    events.KEY_DOT: ecodes.KEY_DOT,
+
+    events.KEY_LEFT_SHIFT: ecodes.KEY_LEFTSHIFT,
+    events.KEY_ENTER: ecodes.KEY_ENTER,
     events.KEY_SPACE: ecodes.KEY_SPACE,
-    events.KEY_BACKSPACE: ecodes.KEY_BACKSPACE
+    events.KEY_BACKSPACE: ecodes.KEY_BACKSPACE,
+    events.KEY_CAPS_LOCK: ecodes.KEY_CAPSLOCK
 }
 
 
