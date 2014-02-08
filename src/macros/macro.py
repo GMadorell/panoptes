@@ -21,7 +21,7 @@ class Macro(object):
         self.__arg_count = len(match_alphanumerical_in_brackets.findall(declaration))
 
     def matches_declaration(self, declaration):
-        return declaration == self.__declaration
+        return self.__declaration_regex.search(declaration) is not None
 
     def apply_arguments(self, arguments):
         """
@@ -32,12 +32,13 @@ class Macro(object):
         return self.__macro_function(arguments)
 
     def __validate(self, declaration, macro_text):
-        declaration_arguments = match_number_in_brackets.findall(declaration)
-        macro_text_arguments = match_number_in_brackets.findall(macro_text)
+        declaration_arguments = match_alphanumerical_in_brackets.findall(declaration)
+        macro_text_arguments = match_alphanumerical_in_brackets.findall(macro_text)
 
-        assert declaration_arguments == macro_text_arguments, \
-            "Macro argument mismatch. Declaration arguments were: %s, whereas macro_text arguments were: %s" \
-            % (str(declaration_arguments), str(macro_text_arguments))
+        for argument in declaration_arguments:
+            assert argument in macro_text_arguments, \
+                "Macro argument mismatch. Declaration arguments were: %s, whereas macro_text arguments were: %s" \
+                % (str(declaration_arguments), str(macro_text_arguments))
 
     def __preprocess_macro_text(self, macro_text):
         macro_text = macro_text.rstrip("\n")
@@ -45,9 +46,15 @@ class Macro(object):
 
 
 class MacroTests(unittest.TestCase):
-    def test_declaration_should_match(self):
+    def test_no_params_declaration_should_match(self):
         macro = Macro("declaration", "macro_text")
         self.assertTrue(macro.matches_declaration("declaration"))
+
+    def test_params_declaration_should_match(self):
+        macro = Macro("f{0},{1},{name}", "some_macro_text_which_doesnt_matter{0}{1}{name}")
+        self.assertTrue(macro.matches_declaration("f1,2,{hi}"))
+        self.assertTrue(macro.matches_declaration("f1000,2000,{hi}"))
+        self.assertFalse(macro.matches_declaration("f10002000hi"))
 
     def test_apply_arguments_complex(self):
         declaration = "f{0},{name}"
